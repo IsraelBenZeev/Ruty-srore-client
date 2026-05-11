@@ -10,7 +10,9 @@ interface Props {
 
 export function CardProduct({ product, onClick }: Props) {
   const [imgError, setImgError] = useState(false)
-  const imageUrl = product.images?.[0]?.cloudinary_url
+  const imageUrl =
+    product.images?.find(img => img.is_primary)?.cloudinary_url ??
+    product.images?.[0]?.cloudinary_url
 
   return (
     <article
@@ -79,7 +81,15 @@ export function CardProduct({ product, onClick }: Props) {
 
         <div className="flex items-center gap-1.5 flex-wrap">
           <Badge variant="ghost">{product.gender}</Badge>
-          {product.size && <Badge variant="outline">{product.size}</Badge>}
+          {Array.isArray(product.size) && product.size.length > 0 && (
+            <div className="flex flex-wrap gap-1">
+              {product.size.map(s => (
+                <span key={s} className="w-7 h-7 rounded-full border border-ink-300 text-[10px] font-medium text-ink-700 flex items-center justify-center leading-none">
+                  {s}
+                </span>
+              ))}
+            </div>
+          )}
           {product.color && (
             <span className="text-[10px] text-ink-400">{product.color}</span>
           )}

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { SlidersHorizontal, X } from 'lucide-react'
 import { useProducts } from '../../hooks/useProducts'
 import { CardProduct } from './CardProduct'
@@ -6,15 +7,42 @@ import { Filters } from './Filters'
 import { ProductModal } from './ProductModal'
 import { SkeletonCard } from '../../ui/SkeletonCard'
 import { EmptyState } from '../../ui/EmptyState'
-import type { ProductFilters, SortKey } from '../../types/product'
+import type { ProductFilters, SortKey, Season, Gender } from '../../types/product'
 import { cn } from '../../utils/cn'
 
 export function ProductsScreen() {
-  const [filters,          setFilters]          = useState<ProductFilters>({})
-  const [sortKey,          setSortKey]          = useState<SortKey>('created_at')
-  const [sortAsc,          setSortAsc]          = useState(false)
-  const [selectedId,       setSelectedId]       = useState<string | null>(null)
-  const [sidebarOpen,      setSidebarOpen]      = useState(false)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [selectedId,   setSelectedId]   = useState<string | null>(null)
+  const [sidebarOpen,  setSidebarOpen]  = useState(false)
+
+  const filters: ProductFilters = {
+    season:   (searchParams.get('season') as Season) ?? undefined,
+    gender:   (searchParams.get('gender') as Gender) ?? undefined,
+    search:   searchParams.get('search')   ?? undefined,
+    in_stock: searchParams.get('in_stock') === 'true' || undefined,
+  }
+  const sortKey = (searchParams.get('sort') as SortKey) ?? 'created_at'
+  const sortAsc = searchParams.get('asc') === 'true'
+
+  const setFilters = (f: ProductFilters) =>
+    setSearchParams(prev => {
+      const p = new URLSearchParams(prev)
+      f.season   ? p.set('season',   f.season)   : p.delete('season')
+      f.gender   ? p.set('gender',   f.gender)   : p.delete('gender')
+      f.search   ? p.set('search',   f.search)   : p.delete('search')
+      f.in_stock ? p.set('in_stock', 'true')      : p.delete('in_stock')
+      return p
+    }, { replace: true })
+
+  const handleSort = (val: string) => {
+    const [k, a] = val.split(':')
+    setSearchParams(prev => {
+      const p = new URLSearchParams(prev)
+      k === 'created_at' ? p.delete('sort') : p.set('sort', k)
+      a === 'true'       ? p.set('asc', 'true') : p.delete('asc')
+      return p
+    }, { replace: true })
+  }
 
   const { data: products = [], isLoading, isError } = useProducts(filters, sortKey, sortAsc)
 
@@ -36,11 +64,7 @@ export function ProductsScreen() {
           {/* Sort */}
           <select
             value={`${sortKey}:${sortAsc}`}
-            onChange={e => {
-              const [k, a] = e.target.value.split(':')
-              setSortKey(k as SortKey)
-              setSortAsc(a === 'true')
-            }}
+            onChange={e => handleSort(e.target.value)}
             className="text-xs border border-ink-200 rounded-sm px-2.5 py-2 text-ink-700 bg-white focus:outline-none focus:border-ink-900 transition-colors"
           >
             <option value="created_at:false">חדש ביותר</option>

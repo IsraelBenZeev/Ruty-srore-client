@@ -8,6 +8,7 @@ export interface ProductImage {
   cloudinary_public_id: string | null
   original_filename:   string | null
   sort_order:          number
+  is_primary:          boolean
   created_at:          string
 }
 
@@ -18,7 +19,7 @@ export interface Product {
   price:             number | null
   season:            Season
   gender:            Gender
-  size:              string | null
+  size:              string[] | null
   color:             string | null
   brand:             string | null
   in_stock:          boolean

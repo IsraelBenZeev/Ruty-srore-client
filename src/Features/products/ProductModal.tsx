@@ -14,7 +14,10 @@ export function ProductModal({ productId, onClose }: Props) {
   const { data: product, isLoading } = useProductById(productId)
   const [imgIndex, setImgIndex] = useState(0)
 
-  useEffect(() => { setImgIndex(0) }, [productId])
+  useEffect(() => {
+    const primaryIdx = product?.images?.findIndex(img => img.is_primary) ?? 0
+    setImgIndex(primaryIdx >= 0 ? primaryIdx : 0)
+  }, [productId, product?.images])
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
@@ -37,7 +40,7 @@ export function ProductModal({ productId, onClose }: Props) {
 
       {/* Panel */}
       <div
-        className="relative z-10 w-full sm:max-w-xl bg-white animate-slide-up sm:rounded-sm max-h-[90vh] overflow-y-auto"
+        className="relative z-10 w-full sm:max-w-xl bg-white animate-slide-up sm:rounded-2xl rounded-t-2xl max-h-[92vh] overflow-y-auto"
         onClick={e => e.stopPropagation()}
       >
         {/* Close */}
@@ -57,11 +60,15 @@ export function ProductModal({ productId, onClose }: Props) {
         {product && (
           <>
             {/* Image */}
-            <div className="relative aspect-[4/3] bg-ink-50 overflow-hidden">
+            <div className="relative bg-ink-50 overflow-hidden">
               {currentImage ? (
-                <img src={currentImage} alt={product.name} className="w-full h-full object-cover" />
+                <img
+                  src={currentImage}
+                  alt={product.name}
+                  className="w-full object-contain max-h-[60vh]"
+                />
               ) : (
-                <div className="w-full h-full flex items-center justify-center">
+                <div className="flex items-center justify-center h-48">
                   <Tag className="w-12 h-12 text-ink-300" />
                 </div>
               )}
@@ -70,15 +77,15 @@ export function ProductModal({ productId, onClose }: Props) {
                 <>
                   <button
                     onClick={() => setImgIndex(i => Math.max(0, i - 1))}
-                    className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/80 rounded-full flex items-center justify-center shadow"
+                    className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/85 rounded-full flex items-center justify-center shadow-md"
                   >
-                    <ChevronLeft className="w-4 h-4" />
+                    <ChevronLeft className="w-5 h-5" />
                   </button>
                   <button
                     onClick={() => setImgIndex(i => Math.min(images.length - 1, i + 1))}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/80 rounded-full flex items-center justify-center shadow"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/85 rounded-full flex items-center justify-center shadow-md"
                   >
-                    <ChevronRight className="w-4 h-4" />
+                    <ChevronRight className="w-5 h-5" />
                   </button>
                   <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
                     {images.map((_, i) => (
@@ -94,7 +101,7 @@ export function ProductModal({ productId, onClose }: Props) {
             </div>
 
             {/* Content */}
-            <div className="p-6 flex flex-col gap-4" dir="rtl">
+            <div className="p-4 sm:p-6 flex flex-col gap-3 sm:gap-4" dir="rtl">
               <div className="flex items-start justify-between gap-4">
                 <div>
                   {product.brand && (
@@ -128,7 +135,11 @@ export function ProductModal({ productId, onClose }: Props) {
                   {product.season === 'summer' && <Sun className="w-3 h-3 ml-1" />}
                   {SEASON_LABELS[product.season]}
                 </Badge>
-                {product.size  && <Badge variant="outline">{product.size}</Badge>}
+                {Array.isArray(product.size) && product.size.length > 0 && product.size.map(s => (
+                  <span key={s} className="w-8 h-8 rounded-full border border-ink-300 text-xs font-medium text-ink-700 flex items-center justify-center leading-none">
+                    {s}
+                  </span>
+                ))}
                 {product.color && <Badge variant="outline">{product.color}</Badge>}
                 {!product.in_stock && <Badge variant="solid">אזל מהמלאי</Badge>}
               </div>
