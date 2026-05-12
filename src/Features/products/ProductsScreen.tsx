@@ -18,6 +18,7 @@ export function ProductsScreen() {
   const filters: ProductFilters = {
     season:   (searchParams.get('season') as Season) ?? undefined,
     gender:   (searchParams.get('gender') as Gender) ?? undefined,
+    brand:    searchParams.get('brand')    ?? undefined,
     search:   searchParams.get('search')   ?? undefined,
     in_stock: searchParams.get('in_stock') === 'true' || undefined,
   }
@@ -29,6 +30,7 @@ export function ProductsScreen() {
       const p = new URLSearchParams(prev)
       f.season   ? p.set('season',   f.season)   : p.delete('season')
       f.gender   ? p.set('gender',   f.gender)   : p.delete('gender')
+      f.brand    ? p.set('brand',    f.brand)    : p.delete('brand')
       f.search   ? p.set('search',   f.search)   : p.delete('search')
       f.in_stock ? p.set('in_stock', 'true')      : p.delete('in_stock')
       return p

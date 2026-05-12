@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { MessageCircle, Tag, Snowflake, Sun, ShoppingBag } from 'lucide-react'
+import { MessageCircle, Tag, Snowflake, Sun, ShoppingBag, Truck } from 'lucide-react'
 import { Badge } from '../../ui/Badge'
 import type { Product } from '../../types/product'
 
@@ -94,6 +94,13 @@ export function CardProduct({ product, onClick }: Props) {
             <span className="text-[10px] text-ink-400">{product.color}</span>
           )}
         </div>
+
+        {product.delivery_time && (
+          <div className="flex items-center gap-1 text-[10px] text-ink-400">
+            <Truck className="w-3 h-3 flex-shrink-0" />
+            <span>{product.delivery_time}</span>
+          </div>
+        )}
 
         <div className="flex items-center gap-3">
           {product.purchase_url && (

@@ -23,6 +23,9 @@ export interface Product {
   color:             string | null
   brand:             string | null
   in_stock:          boolean
+  delivery_time:     string | null
+  allow_returns:     boolean | null
+  sms_required:      boolean | null
   contact_info:      string | null
   source_message:    string | null
   created_at:        string
@@ -37,6 +40,7 @@ export interface Product {
 export interface ProductFilters {
   season?:   Season | 'all'
   gender?:   Gender | 'all'
+  brand?:    string
   search?:   string
   in_stock?: boolean
 }

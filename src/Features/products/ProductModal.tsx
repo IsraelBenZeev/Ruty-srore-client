@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
-import { X, MessageCircle, Tag, Snowflake, Sun, Calendar, ShoppingBag, ChevronLeft, ChevronRight } from 'lucide-react'
+import { X, MessageCircle, Tag, Snowflake, Sun, Calendar, ShoppingBag, ChevronLeft, ChevronRight, Truck, Ban, Smartphone, ChevronDown } from 'lucide-react'
 import { Badge } from '../../ui/Badge'
 import { Spinner } from '../../ui/Spinner'
 import { useProductById } from '../../hooks/useProductById'
 import { SEASON_LABELS } from '../../types/product'
+import { FormattedDescription } from './FormattedDescription'
 
 interface Props {
   productId: string | null
@@ -12,11 +13,13 @@ interface Props {
 
 export function ProductModal({ productId, onClose }: Props) {
   const { data: product, isLoading } = useProductById(productId)
-  const [imgIndex, setImgIndex] = useState(0)
+  const [imgIndex,  setImgIndex]  = useState(0)
+  const [showRaw,   setShowRaw]   = useState(false)
 
   useEffect(() => {
     const primaryIdx = product?.images?.findIndex(img => img.is_primary) ?? 0
     setImgIndex(primaryIdx >= 0 ? primaryIdx : 0)
+    setShowRaw(false)
   }, [productId, product?.images])
 
   useEffect(() => {
@@ -124,7 +127,7 @@ export function ProductModal({ productId, onClose }: Props) {
               </div>
 
               {product.description && (
-                <p className="text-sm text-ink-600 leading-relaxed">{product.description}</p>
+                <FormattedDescription text={product.description} />
               )}
 
               {/* Tags */}
@@ -144,13 +147,64 @@ export function ProductModal({ productId, onClose }: Props) {
                 {!product.in_stock && <Badge variant="solid">אזל מהמלאי</Badge>}
               </div>
 
-              {/* Source message */}
+              {/* Policy info */}
+              {(product.delivery_time || product.allow_returns === false || product.sms_required) && (
+                <div className="rounded-xl border border-ink-100 overflow-hidden" dir="rtl">
+                  {product.delivery_time && (
+                    <div className="flex items-center gap-3 px-4 py-3 border-b border-ink-100 last:border-b-0">
+                      <div className="w-8 h-8 rounded-full bg-ink-50 flex items-center justify-center flex-shrink-0">
+                        <Truck className="w-4 h-4 text-ink-500" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-medium text-ink-800">זמן קבלת המשלוח</p>
+                        <p className="text-[11px] text-ink-400">{product.delivery_time}</p>
+                      </div>
+                    </div>
+                  )}
+                  {product.allow_returns === false && (
+                    <div className="flex items-center gap-3 px-4 py-3 border-b border-ink-100 last:border-b-0">
+                      <div className="w-8 h-8 rounded-full bg-red-50 flex items-center justify-center flex-shrink-0">
+                        <Ban className="w-4 h-4 text-red-400" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-medium text-ink-800">אין החזרה / החלפה</p>
+                        <p className="text-[11px] text-ink-400">המוצר אינו ניתן להחזרה או החלפה</p>
+                      </div>
+                    </div>
+                  )}
+                  {product.sms_required && (
+                    <div className="flex items-center gap-3 px-4 py-3 border-b border-ink-100 last:border-b-0">
+                      <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
+                        <Smartphone className="w-4 h-4 text-blue-400" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-medium text-ink-800">חובה מספר SMS</p>
+                        <p className="text-[11px] text-ink-400">יש להזמין עם מספר שמקבל הודעות SMS</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Source message accordion */}
               {product.source_message && (
-                <div className="bg-ink-50 rounded-sm p-3 border-r-2 border-ink-300">
-                  <p className="text-xs text-ink-500 font-medium mb-1">מהודעת הווצאפ</p>
-                  <p className="text-xs text-ink-600 leading-relaxed whitespace-pre-line">
-                    {product.source_message}
-                  </p>
+                <div className="rounded-xl border border-ink-100 overflow-hidden">
+                  <button
+                    onClick={() => setShowRaw(o => !o)}
+                    className="w-full flex items-center justify-between gap-3 px-4 py-3 text-right hover:bg-ink-50 transition-colors"
+                  >
+                    <span className="text-xs font-medium text-ink-500">ההודעה המלאה מהווצאפ</span>
+                    <ChevronDown
+                      className={`w-4 h-4 text-ink-400 flex-shrink-0 transition-transform duration-200 ${showRaw ? 'rotate-180' : ''}`}
+                    />
+                  </button>
+                  {showRaw && (
+                    <div className="px-4 pb-4 border-t border-ink-100">
+                      <p className="text-xs text-ink-500 leading-relaxed whitespace-pre-line pt-3">
+                        {product.source_message}
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
 

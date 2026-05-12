@@ -15,6 +15,9 @@ export async function fetchProducts(
   if (filters.gender && filters.gender !== 'all') {
     params.set('gender', filters.gender)
   }
+  if (filters.brand) {
+    params.set('brand', filters.brand)
+  }
   if (filters.in_stock) {
     params.set('in_stock', 'true')
   }
@@ -29,6 +32,18 @@ export async function fetchProducts(
   const res = await fetch(`${BASE_URL}/products/?${params}`)
   if (!res.ok) throw new Error(`HTTP ${res.status}`)
   return res.json() as Promise<Product[]>
+}
+
+export async function fetchBrands(): Promise<string[]> {
+  const res = await fetch(`${BASE_URL}/products/brands`)
+  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+  return res.json() as Promise<string[]>
+}
+
+export async function fetchSeasons(): Promise<string[]> {
+  const res = await fetch(`${BASE_URL}/products/seasons`)
+  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+  return res.json() as Promise<string[]>
 }
 
 export async function fetchProductById(id: string): Promise<Product | null> {

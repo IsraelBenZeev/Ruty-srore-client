@@ -2,6 +2,7 @@ import { cn } from '../../utils/cn'
 import { SearchInput } from '../../ui/SearchInput'
 import type { ProductFilters, Season, Gender } from '../../types/product'
 import { SEASON_LABELS, GENDER_LABELS } from '../../types/product'
+import { useBrands } from '../../hooks/useBrands'
 
 interface Props {
   filters:   ProductFilters
@@ -15,6 +16,8 @@ export function Filters({ filters, onChange }: Props) {
   const set = <K extends keyof ProductFilters>(key: K, val: ProductFilters[K]) =>
     onChange({ ...filters, [key]: val })
 
+  const { data: brands = [] } = useBrands()
+
   return (
     <div className="flex flex-col gap-5" dir="rtl">
 
@@ -25,9 +28,43 @@ export function Filters({ filters, onChange }: Props) {
         placeholder="חפש בגד, מותג..."
       />
 
-      {/* Season */}
+      {/* Brand */}
+      {brands.length > 0 && (
+        <div className="flex flex-col gap-2">
+          <span className="text-[10px] font-semibold tracking-widest uppercase text-ink-400">מותג</span>
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => set('brand', undefined)}
+              className={cn(
+                'px-3 py-1.5 text-xs font-medium border rounded-sm transition-all',
+                !filters.brand
+                  ? 'bg-ink-900 border-ink-900 text-white'
+                  : 'border-ink-200 text-ink-600 hover:border-ink-400',
+              )}
+            >
+              הכל
+            </button>
+            {brands.map(b => (
+              <button
+                key={b}
+                onClick={() => set('brand', filters.brand === b ? undefined : b)}
+                className={cn(
+                  'px-3 py-1.5 text-xs font-medium border rounded-sm transition-all',
+                  filters.brand === b
+                    ? 'bg-ink-900 border-ink-900 text-white'
+                    : 'border-ink-200 text-ink-600 hover:border-ink-400',
+                )}
+              >
+                {b}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Season (קטגוריה) */}
       <div className="flex flex-col gap-2">
-        <span className="text-[10px] font-semibold tracking-widest uppercase text-ink-400">עונה</span>
+        <span className="text-[10px] font-semibold tracking-widest uppercase text-ink-400">קטגוריה</span>
         <div className="flex flex-wrap gap-2">
           {seasons.map(s => (
             <button
